@@ -145,3 +145,65 @@ class CPU:
             if (self.register[operand_a] == self.register[operand_b]):
                 # print('set flag to equal')
                 self.FL = 0b00000001
+            elif (self.register[operand_a] < self.register[operand_b]):
+                # print('set flag to less than')
+                self.FL = 0b00000100
+            elif (self.register[operand_a] > self.register[operand_b]):
+                # print('set flag to greater than')
+                self.FL = 0b00000010
+            self.PC += 3
+
+        def JMP(operand_a, operand_b):
+            self.PC = self.register[operand_a]
+
+        def JEQ(operand_a, operand_b):
+            # print('FL: ', self.FL)
+            if(self.FL == 0b00000001):
+                # print('JEQ: its equal! jump!')
+                self.PC = self.register[operand_a]
+            else:
+                # print('JEQ: its not equal! DONT jump!')
+                self.PC += 2
+        def JNE(operand_a, operand_b):
+            # print('FL: ', self.FL)
+            total = self.FL & 0b00000001
+            if (total == 0):
+                # print('JNE: its not equal! JUMP!')
+                # print('jumping to: ', self.register[operand_a])
+                self.PC = self.register[operand_a]
+            else:
+                # print('JNE: its not equal! DONT jump!')
+                self.PC += 2
+
+
+        branch_table = {
+            0b10000010 : LDI,
+            0b01000111 : PRN,
+            0b00000001 : HLT,
+            0b10100010 : MUL,
+            0b01000101 : PUSH,
+            0b01000110 : POP,
+            0b01010000 : CALL,
+            0b00010001 : RET,
+            0b10100000 : ADD,
+            0b10100111 : CMP,
+            0b01010100 : JMP,
+            0b01010101 : JEQ,
+            0b01010110 : JNE
+
+        }
+
+
+        while self.running:
+            try:
+                IR = self.ram[self.PC]
+                # print('in try: ', bin(IR))
+                operand_a = self.ram[self.PC + 1]
+                operand_b = self.ram[self.PC + 2]
+
+                branch_table[IR](operand_a, operand_b)
+            except:
+                # print('broke here PC: ', self.PC)
+                # print('broke here IR: ', IR)
+                break
+ 
